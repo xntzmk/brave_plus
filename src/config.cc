@@ -47,6 +47,8 @@ void Config::LoadConfig() {
   new_tab_disable_ = GetIniInt(L"tabs", L"new_tab_disable", 1) != 0;
   disable_tab_names_ = StringSplit(
       GetIniString(L"tabs", L"new_tab_disable_name", L""), L',', L"\"");
+  prev_tab_key_ = GetIniString(L"tabs", L"prev_tab_key", L"");
+  next_tab_key_ = GetIniString(L"tabs", L"next_tab_key", L"");
 
   // keymapping
   LoadKeyMappings();

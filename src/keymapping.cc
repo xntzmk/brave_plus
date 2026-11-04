@@ -253,6 +253,26 @@ void InitKeyMapping() {
     DebugLog(L"KeyMapping: Loaded {} -> {}", source, target);
   }
 
+  // Tab switching keys, configurable in [tabs] as prev_tab_key / next_tab_key.
+  const auto add_tab_key = [](const std::wstring& key, int command) {
+    if (key.empty()) {
+      return;
+    }
+    const UINT parsed = ParseHotkeys(key, /*no_repeat=*/false);
+    KeyMapping mapping = {};
+    mapping.source_modifiers = LOWORD(parsed);
+    mapping.source_vk = HIWORD(parsed);
+    mapping.target_command = command;
+    if (mapping.source_vk == 0) {
+      DebugLog(L"KeyMapping: Invalid tab key '{}'", key);
+      return;
+    }
+    key_mappings.emplace_back(mapping);
+    DebugLog(L"KeyMapping: Tab key '{}' -> command {}", key, command);
+  };
+  add_tab_key(config.GetPrevTabKey(), IDC_SELECT_PREVIOUS_TAB);
+  add_tab_key(config.GetNextTabKey(), IDC_SELECT_NEXT_TAB);
+
   if (!key_mappings.empty()) {
     RegisterKeyboardHandler(KeyMappingHandler, HandlerPriority::kHigh);
     DebugLog(L"KeyMapping: Registered {} mappings", key_mappings.size());

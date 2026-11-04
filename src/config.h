@@ -45,6 +45,8 @@ class Config {
   const std::vector<std::wstring>& GetDisableTabNames() const {
     return disable_tab_names_;
   }
+  const std::wstring& GetPrevTabKey() const { return prev_tab_key_; }
+  const std::wstring& GetNextTabKey() const { return next_tab_key_; }
 
   // keymapping
   using KeyMappingPair = std::pair<std::wstring, std::wstring>;
@@ -88,6 +90,8 @@ class Config {
   int bookmark_new_tab_;
   bool new_tab_disable_;
   std::vector<std::wstring> disable_tab_names_;
+  std::wstring prev_tab_key_;
+  std::wstring next_tab_key_;
 
   // keymapping
   std::vector<KeyMappingPair> key_mappings_;

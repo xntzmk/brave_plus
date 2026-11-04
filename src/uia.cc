@@ -131,9 +131,9 @@ bool InitializeClassConditions(UiaSession* session) {
   // needed while stable Chrome still uses the subclass: crrev.com/c/8625829.
   ComPtr<IUIAutomationCondition> tab_container;
   ComPtr<IUIAutomationCondition> tab_container_impl;
-  if (!CreateClassCondition(session->automation, L"TabContainer",
+  if (!CreateClassCondition(session->automation, L"BraveTabContainer",
                             &tab_container) ||
-      !CreateClassCondition(session->automation, L"TabContainerImpl",
+      !CreateClassCondition(session->automation, L"BraveTabContainer",
                             &tab_container_impl) ||
       FAILED(session->automation->CreateOrCondition(
           tab_container.Get(), tab_container_impl.Get(),
@@ -142,12 +142,12 @@ bool InitializeClassConditions(UiaSession* session) {
   }
 
   return CreateClassCondition(session->automation,
-                              L"TabStrip::TabDragContextImpl",
+                              L"BraveTabStrip",
                               &conditions.tab_strip_drag_context) &&
-         CreateClassCondition(session->automation, L"UnpinnedTabContainerView",
+         CreateClassCondition(session->automation, L"BraveTabContainer",
                               &conditions.unpinned_tab_container_view) &&
-         CreateClassCondition(session->automation, L"Tab", &conditions.tab) &&
-         CreateClassCondition(session->automation, L"TabView",
+         CreateClassCondition(session->automation, L"BraveTab", &conditions.tab) &&
+         CreateClassCondition(session->automation, L"BraveTab",
                               &conditions.tab_view) &&
          CreateClassCondition(session->automation, L"TabCloseButton",
                               &conditions.tab_close_button) &&
@@ -155,7 +155,7 @@ bool InitializeClassConditions(UiaSession* session) {
                               &conditions.bookmark_button) &&
          CreateClassCondition(session->automation, L"MenuItemView",
                               &conditions.menu_item_view) &&
-         CreateClassCondition(session->automation, L"TabStripControlButton",
+         CreateClassCondition(session->automation, L"VerticalTabNewTabButton",
                               &conditions.tab_strip_control_button);
 }
 
@@ -306,7 +306,7 @@ ComPtr<IUIAutomationElement> FindBrowserViewFromTopChrome(
 
   constexpr int kMaxAncestorDepth = 12;
   for (int depth = 0; element && depth < kMaxAncestorDepth; ++depth) {
-    if (HasClassName(element, {L"BrowserView"})) {
+    if (HasClassName(element, {L"BraveBrowserView"})) {
       return element;
     }
 
@@ -574,11 +574,11 @@ TreeScope GetTabElementScope(TabContainerKind kind) {
 std::wstring_view GetTabElementClassName(TabContainerKind kind) {
   switch (kind) {
     case TabContainerKind::kHorizontal:
-      return L"Tab";
+      return L"BraveTab";
     case TabContainerKind::kUnified:
-      return L"TabView";
+      return L"BraveTab";
   }
-  return L"Tab";
+  return L"BraveTab";
 }
 
 const ComPtr<IUIAutomationCondition>& GetTabElementCondition(
@@ -642,7 +642,7 @@ std::optional<TabContainer> FindTabContainerInRegion(
   if (const auto tab_strip = FindFirstDescendantByClass(
           region, session.class_conditions.tab_strip_drag_context)) {
     if (const auto container = FindSiblingByClasses(
-            session, tab_strip, {L"TabContainer", L"TabContainerImpl"})) {
+            session, tab_strip, {L"BraveTabContainer", L"BraveTabContainer"})) {
       DebugLog(L"UIA: resolved horizontal tab container via sibling");
       return TabContainer{container, TabContainerKind::kHorizontal};
     }
@@ -669,7 +669,7 @@ ComPtr<IUIAutomationElement> FindTabStripRegion(
     const ComPtr<IUIAutomationElement>& anchor) {
   return FindShallowDescendantByClasses(
       session.control_view_walker.Get(), anchor,
-      {L"HorizontalTabStripRegionViewOld", L"VerticalTabStripRegionView"},
+      {L"BraveHorizontalTabStripRegionView", L"BraveVerticalTabStripRegionView"},
       /*max_visited=*/256);
 }
 
@@ -717,7 +717,7 @@ TabUiCache* ResolveTabUi(UiaSession* session, HWND hwnd) {
   }
 
   if (region) {
-    const bool vertical = HasClassName(region, {L"VerticalTabStripRegionView"});
+    const bool vertical = HasClassName(region, {L"BraveVerticalTabStripRegionView"});
     if (auto container = FindTabContainerInRegion(*session, region, vertical)) {
       cache.region = region;
       cache.container = std::move(*container);
@@ -734,10 +734,10 @@ TabUiCache* ResolveTabUi(UiaSession* session, HWND hwnd) {
     // browser windows.
     if (const auto container = FindShallowDescendantByClasses(
             session->raw_view_walker.Get(), window_element,
-            {L"TabContainer", L"TabContainerImpl", L"UnpinnedTabContainerView"},
+            {L"BraveTabContainer", L"BraveTabContainer", L"BraveTabContainer"},
             /*max_visited=*/512)) {
       const TabContainerKind kind =
-          HasClassName(container, {L"UnpinnedTabContainerView"})
+          HasClassName(container, {L"BraveTabContainer"})
               ? TabContainerKind::kUnified
               : TabContainerKind::kHorizontal;
       cache.container = TabContainer{container, kind};

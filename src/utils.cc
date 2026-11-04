@@ -386,6 +386,12 @@ constexpr std::pair<std::wstring_view, UINT> kSpecialKeys[] = {
     {L"pgup", VK_PRIOR},  // alias
     {L"pagedown", VK_NEXT},
     {L"pgdn", VK_NEXT},  // alias
+    // Bracket keys. A literal `[` cannot be written in the INI as a key name
+    // (the line would parse as a section header), so expose named aliases.
+    {L"lbracket", VK_OEM_4},
+    {L"rbracket", VK_OEM_6},
+    {L"oem4", VK_OEM_4},  // alias
+    {L"oem6", VK_OEM_6},  // alias
 };
 
 constexpr bool EqualsIgnoreCase(std::wstring_view a, std::wstring_view b) {

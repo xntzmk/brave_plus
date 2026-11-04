@@ -251,7 +251,8 @@ bool HandleDoubleClick(const MOUSEHOOKSTRUCT* pmouse) {
   if (!hit || hit->on_close_button) {
     return false;
   }
-  if (hit->tab_count == 1) {
+  if (hit->tab_count == 1 &&
+      !IsOnNewTab(hwnd, config.GetDisableTabNames())) {
     ReplaceLastTab(hwnd);
   } else {
     ExecuteCommand(IDC_CLOSE_TAB, hwnd);
@@ -271,7 +272,8 @@ bool HandleRightClick(const MOUSEHOOKSTRUCT* pmouse) {
   if (!hit) {
     return false;
   }
-  if (IsNeedKeep(hit->tab_count, KeepTabTrigger::kRightClick)) {
+  if (IsNeedKeep(hit->tab_count, KeepTabTrigger::kRightClick) &&
+      !IsOnNewTab(hwnd, config.GetDisableTabNames())) {
     ReplaceLastTab(hwnd);
   } else {
     // The injected middle click carries `GetMagicCode()`, so `MouseProc`
@@ -294,7 +296,8 @@ bool HandleMiddleClick(const MOUSEHOOKSTRUCT* pmouse) {
     return false;
   }
 
-  if (IsNeedKeep(hit->tab_count, KeepTabTrigger::kMiddleClick)) {
+  if (IsNeedKeep(hit->tab_count, KeepTabTrigger::kMiddleClick) &&
+      !IsOnNewTab(hwnd, config.GetDisableTabNames())) {
     ReplaceLastTab(hwnd);
     return true;
   }
@@ -312,7 +315,8 @@ bool HandleCloseButton(const MOUSEHOOKSTRUCT* pmouse) {
   if (!hit || !hit->on_close_button) {
     return false;
   }
-  if (!IsNeedKeep(hit->tab_count, KeepTabTrigger::kCloseButton)) {
+  if (!IsNeedKeep(hit->tab_count, KeepTabTrigger::kCloseButton) ||
+      IsOnNewTab(hwnd, config.GetDisableTabNames())) {
     return false;
   }
   ReplaceLastTab(hwnd);
@@ -537,7 +541,7 @@ bool HandleKeepTab(WPARAM wParam) {
 
   const bool need_keep =
       IsNeedKeep(tab_count.value(), KeepTabTrigger::kKeyboardShortcut);
-  if (!need_keep) {
+  if (!need_keep || IsOnNewTab(hwnd, config.GetDisableTabNames())) {
     return false;
   }
 
