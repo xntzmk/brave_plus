@@ -6,6 +6,7 @@
 
 #include "appid.h"
 #include "config.h"
+#include "focus_watch.h"
 #include "green.h"
 #include "hijack.h"
 #include "hotkey.h"
@@ -38,6 +39,11 @@ void ChromePlus() {
 
   // Enhancement of the address bar, tab, and bookmark.
   TabBookmark();
+
+  // Track UIA focus so bare shortcut keys do not swallow typed characters.
+  if (config.IsTabKeySkipInInput()) {
+    StartFocusWatch();
+  }
 
   // Install input hooks (must be called after all handlers are registered).
   InstallInputHooks();

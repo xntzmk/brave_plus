@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "config.h"
+#include "focus_watch.h"
 #include "inputhook.h"
 #include "utils.h"
 
@@ -19,6 +20,7 @@ struct KeyMapping {
   UINT target_vk;
   UINT target_modifiers;
   int target_command;
+  bool skip_in_input;
 };
 
 struct TranslateKey {
@@ -173,6 +175,10 @@ bool KeyMappingHandler(WPARAM wParam, LPARAM lParam) {
   for (const auto& mapping : key_mappings) {
     if (wParam == mapping.source_vk &&
         CheckModifiers(mapping.source_modifiers)) {
+      if (mapping.skip_in_input && config.IsTabKeySkipInInput() &&
+          IsEditableFocused()) {
+        return false;
+      }
       if (mapping.target_command != 0) {
         ExecuteMappedCommand(mapping);
       } else {
@@ -263,6 +269,7 @@ void InitKeyMapping() {
     mapping.source_modifiers = LOWORD(parsed);
     mapping.source_vk = HIWORD(parsed);
     mapping.target_command = command;
+    mapping.skip_in_input = true;
     if (mapping.source_vk == 0) {
       DebugLog(L"KeyMapping: Invalid tab key '{}'", key);
       return;

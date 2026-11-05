@@ -38,15 +38,20 @@ cache_dir=none
 right_click_close=1
 double_click_close=1
 keep_last_tab=1
-wheel_tab=1
+wheel_tab=0            ; 0 = 在标签栏滚动不切标签（只手按住右键滚轮切）
 wheel_tab_when_press_rbutton=1
 
 prev_tab_key=,         ; 上一个标签 (command 34017)
 next_tab_key=.         ; 下一个标签 (command 34016)
+tab_key_skip_in_input=1 ; 光标在输入框/地址栏时，上面两个键不触发
 ```
 
-⚠️ `prev_tab_key` / `next_tab_key` 是**裸键全局拦截**，不判断焦点：设成 `,` `.` 之后，
-浏览器里任何地方（地址栏、网页输入框）按这两个键都会被切换标签，**打不出逗号和点号**。
+`prev_tab_key` / `next_tab_key` 默认只在**焦点不在输入框时**触发（`tab_key_skip_in_input=1`）：
+地址栏、`<input>`、`<textarea>`、contenteditable 里按 `,` / `.` 会正常输入字符；
+焦点在网页正文时才会切换标签。判定用 UI Automation 的 focus-changed 事件维护一个缓存标志，
+键盘钩子只读这个标志，不会因为查 UIA 导致按键卡顿。
+
+把它设成 `0` 就回到"全局拦截"的旧行为（到处都打不出逗号点号）。
 想保留打字就把值改成带修饰键的写法，例如 `Alt+,` / `Alt+.`，改完重启 Brave 即可，无需重编译。
 
 ## 和上游的差异
@@ -57,6 +62,7 @@ next_tab_key=.         ; 下一个标签 (command 34016)
 | `src/tabbookmark.cc` | 最后一个标签是新标签页时直接关窗口，而不是替换成新标签页 |
 | `src/utils.cc` | 新增 `lbracket` / `rbracket` / `oem4` / `oem6` 按键别名（`[` 不能写在 INI 行首） |
 | `src/config.*`、`src/keymapping.cc` | 新增 `[tabs] prev_tab_key` / `next_tab_key` 配置项 |
+| `src/focus_watch.*`、`src/chrome++.cc` | UIA 焦点监听：输入框聚焦时跳过裸键映射 |
 
 ## 已知限制
 
@@ -75,6 +81,13 @@ build.cmd vs x64 release
 ```
 
 产物：`out\x64\release\version.dll`。
+
+构建注意：
+- 工程依赖 VC-LTL（CMake 的 FetchContent 从 GitHub Releases 下载），国内网络可能失败。
+  可先手动下载 `VC-LTL-Binary.7z`（v5.3.1）放到构建目录的 `_deps/vc_ltl-subbuild/vc_ltl-populate-prefix/src/`，
+  或用镜像 + `curl --ssl-no-revoke`；也可 `-DCHROME_PLUS_USE_VC_LTL=OFF` 跳过（运行时已用 /MT，只是体积略大）。
+- 仓库如果放在同步盘（如 `D:\\Sync`），增量构建可能卡住；建议把构建目录放到本地临时目录：
+  `cmake --preset vs -B %TEMP%\\bp-build -A x64 -DCHROME_PLUS_ARCH=x64`。
 打包发布：`pwsh brave\pack.ps1 -Version 1.18.3-brave.1`（生成带 SHA256 的 zip）。
 
 ## 许可

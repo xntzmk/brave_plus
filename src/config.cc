@@ -49,6 +49,7 @@ void Config::LoadConfig() {
       GetIniString(L"tabs", L"new_tab_disable_name", L""), L',', L"\"");
   prev_tab_key_ = GetIniString(L"tabs", L"prev_tab_key", L"");
   next_tab_key_ = GetIniString(L"tabs", L"next_tab_key", L"");
+  tab_key_skip_in_input_ = GetIniInt(L"tabs", L"tab_key_skip_in_input", 1) != 0;
 
   // keymapping
   LoadKeyMappings();

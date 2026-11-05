@@ -142,6 +142,7 @@ add_library(chrome_plus SHARED
   src/chrome++.cc
   src/chrome++.rc
   src/config.cc
+  src/focus_watch.cc
   src/green.cc
   src/hijack.cc
   src/hotkey.cc

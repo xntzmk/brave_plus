@@ -47,6 +47,7 @@ class Config {
   }
   const std::wstring& GetPrevTabKey() const { return prev_tab_key_; }
   const std::wstring& GetNextTabKey() const { return next_tab_key_; }
+  bool IsTabKeySkipInInput() const { return tab_key_skip_in_input_; }
 
   // keymapping
   using KeyMappingPair = std::pair<std::wstring, std::wstring>;
@@ -92,6 +93,7 @@ class Config {
   std::vector<std::wstring> disable_tab_names_;
   std::wstring prev_tab_key_;
   std::wstring next_tab_key_;
+  bool tab_key_skip_in_input_;
 
   // keymapping
   std::vector<KeyMappingPair> key_mappings_;
