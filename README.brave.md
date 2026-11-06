@@ -1,5 +1,11 @@
 # Brave++ —— Chrome++ 的 Brave Origin 适配版
 
+> **⚠️ 本仓库只提供源码，不发布任何预编译二进制。**
+>
+> `version.dll` 这种「DLL 代理」在平台的自动化扫描里很容易被误判为恶意软件（本仓库曾因此被误封一次账号）。
+> 需要可执行文件请按下面「构建」一节自行编译，或从作者的个人渠道获取；
+> **不要**把 `version.dll` / 打包好的 zip 提交到本仓库、Issue 或 Release 附件里。
+
 把 [Chrome++](https://github.com/Bush2021/chrome_plus)（GPL-3.0）移植到 **Brave Origin** 上的版本。
 不是新写的浏览器补丁：仍然走 `version.dll` 劫持 + Detours + UI Automation，只改了两处适配。
 
